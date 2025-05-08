@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Media;
 using System.Windows.Forms;
 
 namespace DinoGame
@@ -16,6 +17,8 @@ namespace DinoGame
         private readonly Random random;
         private readonly Label scoreLabel;
         private readonly Label ammoLabel;
+        private SoundPlayer backgroundMusic;
+        private SoundPlayer shootSound;
 
         private int score;
         private int gameSpeed;
@@ -23,6 +26,18 @@ namespace DinoGame
         public GameManager(Form form)
         {
             gameForm = form;
+
+            backgroundMusic = new SoundPlayer("Resources/background.wav");
+            shootSound = new SoundPlayer("Resources/shoot.wav");
+
+            try
+            {
+                backgroundMusic.PlayLooping(); // tumutugtog habang naglalaro
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Background music failed: " + ex.Message);
+            }
             dino = new Dino(form);
             obstacles = new List<Obstacle>();
             bullets = new List<Bullet>();
@@ -183,6 +198,7 @@ namespace DinoGame
                     if (dino.UseAmmo())
                     {
                         bullets.Add(new Bullet(gameForm, new Point(dino.DinoBox.Right, dino.DinoBox.Top + 25)));
+                        shootSound.Play(); // ← Gun sound
                     }
                     break;
             }
@@ -192,6 +208,7 @@ namespace DinoGame
         {
             gameTimer.Stop();
             MessageBox.Show($"Game Over! Score: {score}", "Game Over");
+            backgroundMusic.Stop();
             Application.Exit();
         }
     }
